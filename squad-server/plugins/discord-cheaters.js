@@ -7,6 +7,8 @@ import readline from 'readline';
 
 import DataStore from '../utils/data-store.js';
 import Analyzer from '../utils/analyzer.js';
+
+let alreadyWarned = new Set();
 export default class DiscordCheaters extends DiscordBasePlugin {
   static get description() {
     return 'The <code>DiscordCheater</code> plugin will log suspected Cheaters to a Discord channel.';
@@ -115,7 +117,7 @@ export default class DiscordCheaters extends DiscordBasePlugin {
   async checkVersion() {
     const owner = 'IgnisAlienus';
     const repo = 'SquadJS-Cheater-Detection';
-    const currentVersion = 'v1.4.2';
+    const currentVersion = 'v1.5.0';
 
     try {
       const latestVersion = await getLatestVersion(owner, repo);
@@ -446,8 +448,12 @@ export default class DiscordCheaters extends DiscordBasePlugin {
             const row = `#  > ${playerSteamID} | ${playerController} | ${playerName}: ${cheaters[cK][playerId]}`;
 
             // Check if the row is already in the set
-            if (!this.uniqueRowsSet.has(row)) {
+            if (
+              !this.uniqueRowsSet.has(row) &&
+              !alreadyWarned.has(playerSteamID)
+            ) {
               suspectedCheaters.add(playerSteamID);
+              alreadyWarned.add(playerSteamID);
               this.uniqueRowsSet.add(row);
               contentBuilding.push({ row });
               this.verbose(
